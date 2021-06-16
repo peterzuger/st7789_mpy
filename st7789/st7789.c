@@ -21,6 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "py/mpconfig.h"
+
+#if defined(MODULE_ST7789_ENABLED) && MODULE_ST7789_ENABLED == 1
 
 #define __ST7789_VERSION__  "0.1.5"
 
@@ -664,3 +667,5 @@ const mp_obj_module_t mp_module_st7789 = {
 };
 
 MP_REGISTER_MODULE(MP_QSTR_st7789, mp_module_st7789, MODULE_ST7789_ENABLED);
+
+#endif /* defined(MODULE_ST7789_ENABLED) && MODULE_ST7789_ENABLED == 1 */
