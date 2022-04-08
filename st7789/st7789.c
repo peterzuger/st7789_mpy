@@ -44,14 +44,10 @@
 #define ABS(N) (((N)<0)?(-(N)):(N))
 #define mp_hal_delay_ms(delay)  (mp_hal_delay_us(delay * 1000))
 
-#define CS_LOW()     { if(self->cs) {mp_hal_pin_write(self->cs, 0);} }
-#define CS_HIGH()    { if(self->cs) {mp_hal_pin_write(self->cs, 1);} }
-#define DC_LOW()     mp_hal_pin_write(self->dc, 0)
-#define DC_HIGH()    mp_hal_pin_write(self->dc, 1)
-#define RESET_LOW()  mp_hal_pin_write(self->reset, 0)
-#define RESET_HIGH() mp_hal_pin_write(self->reset, 1)
-#define DISP_HIGH()  { if(self->backlight) {mp_hal_pin_write(self->backlight, 1);} }
-#define DISP_LOW()   { if(self->backlight) {mp_hal_pin_write(self->backlight, 0);} }
+#define CS_LOW(self)     { if(self->cs) {mp_hal_pin_write(self->cs, 0);} }
+#define CS_HIGH(self)    { if(self->cs) {mp_hal_pin_write(self->cs, 1);} }
+#define DC_LOW(self)     mp_hal_pin_write(self->dc, 0)
+#define DC_HIGH(self)    mp_hal_pin_write(self->dc, 1)
 
 
 STATIC void write_spi(mp_obj_base_t *spi_obj, const uint8_t *buf, int len) {
@@ -91,16 +87,16 @@ STATIC void st7789_ST7789_print( const mp_print_t *print,
 /* methods start */
 
 STATIC void write_cmd(st7789_ST7789_obj_t *self, uint8_t cmd, const uint8_t *data, int len) {
-    CS_LOW()
+    CS_LOW(self);
     if (cmd) {
-        DC_LOW();
+        DC_LOW(self);
         write_spi(self->spi_obj, &cmd, 1);
     }
     if (len > 0) {
-        DC_HIGH();
+        DC_HIGH(self);
         write_spi(self->spi_obj, data, len);
     }
-    CS_HIGH()
+    CS_HIGH(self);
 }
 
 STATIC void set_window(st7789_ST7789_obj_t *self, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
@@ -144,43 +140,43 @@ STATIC void fill_color_buffer(mp_obj_base_t* spi_obj, uint16_t color, int length
 STATIC void draw_pixel(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t color) {
     uint8_t hi = color >> 8, lo = color;
     set_window(self, x, y, x, y);
-    DC_HIGH();
-    CS_LOW();
+    DC_HIGH(self);
+    CS_LOW(self);
     write_spi(self->spi_obj, &hi, 1);
     write_spi(self->spi_obj, &lo, 1);
-    CS_HIGH();
+    CS_HIGH(self);
 }
 
 
 STATIC void fast_hline(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t w, uint16_t color) {
     set_window(self, x, y, x + w - 1, y);
-    DC_HIGH();
-    CS_LOW();
+    DC_HIGH(self);
+    CS_LOW(self);
     fill_color_buffer(self->spi_obj, color, w);
-    CS_HIGH();
+    CS_HIGH(self);
 }
 
 
 STATIC void fast_vline(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t w, uint16_t color) {
     set_window(self, x, y, x, y + w - 1);
-    DC_HIGH();
-    CS_LOW();
+    DC_HIGH(self);
+    CS_LOW(self);
     fill_color_buffer(self->spi_obj, color, w);
-    CS_HIGH();
+    CS_HIGH(self);
 }
 
 
 STATIC mp_obj_t st7789_ST7789_hard_reset(mp_obj_t self_in) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
-    CS_LOW();
-    RESET_HIGH();
+    CS_LOW(self);
+    mp_hal_pin_write(self->reset, 1);
     mp_hal_delay_ms(50);
-    RESET_LOW();
+    mp_hal_pin_write(self->reset, 0);
     mp_hal_delay_ms(50);
-    RESET_HIGH();
+    mp_hal_pin_write(self->reset, 1);
     mp_hal_delay_ms(150);
-    CS_HIGH();
+    CS_HIGH(self);
     return mp_const_none;
 }
 
@@ -258,10 +254,10 @@ STATIC mp_obj_t st7789_ST7789_fill_rect(size_t n_args, const mp_obj_t *args) {
     mp_int_t color = mp_obj_get_int(args[5]);
 
     set_window(self, x, y, x + w - 1, y + h - 1);
-    DC_HIGH();
-    CS_LOW();
+    DC_HIGH(self);
+    CS_LOW(self);
     fill_color_buffer(self->spi_obj, color, w * h);
-    CS_HIGH();
+    CS_HIGH(self);
 
     return mp_const_none;
 }
@@ -273,10 +269,10 @@ STATIC mp_obj_t st7789_ST7789_fill(mp_obj_t self_in, mp_obj_t _color) {
     mp_int_t color = mp_obj_get_int(_color);
 
     set_window(self, 0, 0, self->width - 1, self->height - 1);
-    DC_HIGH();
-    CS_LOW();
+    DC_HIGH(self);
+    CS_LOW(self);
     fill_color_buffer(self->spi_obj, color, self->width * self->height);
-    CS_HIGH();
+    CS_HIGH(self);
 
     return mp_const_none;
 }
@@ -363,8 +359,8 @@ STATIC mp_obj_t st7789_ST7789_blit_buffer(size_t n_args, const mp_obj_t *args) {
     mp_int_t h = mp_obj_get_int(args[5]);
 
     set_window(self, x, y, x + w - 1, y + h - 1);
-    DC_HIGH();
-    CS_LOW();
+    DC_HIGH(self);
+    CS_LOW(self);
 
     const int buf_size = 256;
     int limit = MIN(buf_info.len, w * h * 2);
@@ -377,7 +373,7 @@ STATIC mp_obj_t st7789_ST7789_blit_buffer(size_t n_args, const mp_obj_t *args) {
     if (rest) {
         write_spi(self->spi_obj, (const uint8_t*)buf_info.buf + i*buf_size, rest);
     }
-    CS_HIGH();
+    CS_HIGH(self);
 
     return mp_const_none;
 }
@@ -419,7 +415,11 @@ MP_DEFINE_CONST_FUN_OBJ_1(st7789_ST7789_init_obj, st7789_ST7789_init);
 
 STATIC mp_obj_t st7789_ST7789_on(mp_obj_t self_in) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    DISP_HIGH();
+
+    if (self->backlight) {
+        mp_hal_pin_write(self->backlight, 1);
+    }
+
     mp_hal_delay_ms(10);
 
     return mp_const_none;
@@ -428,7 +428,11 @@ MP_DEFINE_CONST_FUN_OBJ_1(st7789_ST7789_on_obj, st7789_ST7789_on);
 
 STATIC mp_obj_t st7789_ST7789_off(mp_obj_t self_in) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    DISP_LOW();
+
+    if (self->backlight) {
+        mp_hal_pin_write(self->backlight, 0);
+    }
+
     mp_hal_delay_ms(10);
 
     return mp_const_none;
