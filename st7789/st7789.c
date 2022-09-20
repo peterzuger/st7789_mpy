@@ -510,13 +510,14 @@ STATIC MP_DEFINE_CONST_DICT(st7789_ST7789_locals_dict, st7789_ST7789_locals_dict
 /* methods end */
 
 
-const mp_obj_type_t st7789_ST7789_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_ST7789,
-    .print = st7789_ST7789_print,
-    .make_new = st7789_ST7789_make_new,
-    .locals_dict = (mp_obj_dict_t*)&st7789_ST7789_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    st7789_ST7789_type,
+    MP_QSTR_ST7789,
+    MP_TYPE_FLAG_NONE,
+    print, st7789_ST7789_print,
+    make_new, st7789_ST7789_make_new,
+    locals_dict, (mp_obj_dict_t*)&st7789_ST7789_locals_dict
+    );
 
 mp_obj_t st7789_ST7789_make_new(const mp_obj_type_t *type,
                                 size_t n_args,
