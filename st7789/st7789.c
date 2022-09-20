@@ -51,8 +51,7 @@
 
 
 STATIC void write_spi(mp_obj_base_t *spi_obj, const uint8_t *buf, int len) {
-    mp_machine_spi_p_t *spi_p = (mp_machine_spi_p_t*)spi_obj->type->protocol;
-    spi_p->transfer(spi_obj, len, buf, NULL);
+    ((mp_machine_spi_p_t *)MP_OBJ_TYPE_GET_SLOT(spi_obj->type, protocol))->transfer(spi_obj, len, buf, NULL);
 }
 
 // this is the actual C-structure for our new object
@@ -546,8 +545,7 @@ mp_obj_t st7789_ST7789_make_new(const mp_obj_type_t *type,
     self->base.type = &st7789_ST7789_type;
 
     // set parameters
-    mp_obj_base_t *spi_obj = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[ARG_spi].u_obj);
-    self->spi_obj = spi_obj;
+    self->spi_obj = mp_hal_get_spi_obj(args[ARG_spi].u_obj);
     self->width = args[ARG_width].u_int;
     self->height = args[ARG_height].u_int;
 
