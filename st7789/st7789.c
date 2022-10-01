@@ -516,7 +516,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     MP_TYPE_FLAG_NONE,
     print, st7789_ST7789_print,
     make_new, st7789_ST7789_make_new,
-    locals_dict, (mp_obj_dict_t*)&st7789_ST7789_locals_dict
+    locals_dict, &st7789_ST7789_locals_dict
     );
 
 mp_obj_t st7789_ST7789_make_new(const mp_obj_type_t *type,
