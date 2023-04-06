@@ -542,8 +542,7 @@ mp_obj_t st7789_ST7789_make_new(const mp_obj_type_t *type,
     mp_arg_parse_all_kw_array(n_args, n_kw, all_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     // create new object
-    st7789_ST7789_obj_t *self = m_new_obj(st7789_ST7789_obj_t);
-    self->base.type = &st7789_ST7789_type;
+    st7789_ST7789_obj_t *self = mp_obj_malloc(st7789_ST7789_obj_t, type);
 
     // set parameters
     self->spi_obj = mp_hal_get_spi_obj(args[ARG_spi].u_obj);
