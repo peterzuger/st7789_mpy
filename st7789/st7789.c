@@ -59,10 +59,10 @@ typedef struct _st7789_ST7789_obj_t {
     mp_obj_base_t base;
 
     mp_obj_base_t *spi_obj;
-    uint8_t width;
-    uint8_t height;
-    uint8_t xstart;
-    uint8_t ystart;
+    uint16_t width;
+    uint16_t height;
+    uint16_t xstart;
+    uint16_t ystart;
     mp_hal_pin_obj_t reset;
     mp_hal_pin_obj_t dc;
     mp_hal_pin_obj_t cs;
@@ -98,7 +98,7 @@ static void write_cmd(st7789_ST7789_obj_t *self, uint8_t cmd, const uint8_t *dat
     CS_HIGH(self);
 }
 
-static void set_window(st7789_ST7789_obj_t *self, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
+static void set_window(st7789_ST7789_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     if (x0 > x1 || x1 >= self->width) {
         return;
     }
@@ -136,7 +136,7 @@ static void fill_color_buffer(mp_obj_base_t* spi_obj, uint16_t color, int length
 }
 
 
-static void draw_pixel(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t color) {
+static void draw_pixel(st7789_ST7789_obj_t *self, uint16_t x, uint16_t y, uint16_t color) {
     uint8_t hi = color >> 8, lo = color;
     set_window(self, x, y, x, y);
     DC_HIGH(self);
@@ -147,7 +147,7 @@ static void draw_pixel(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t
 }
 
 
-static void fast_hline(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t w, uint16_t color) {
+static void fast_hline(st7789_ST7789_obj_t *self, uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
     set_window(self, x, y, x + w - 1, y);
     DC_HIGH(self);
     CS_LOW(self);
@@ -156,7 +156,7 @@ static void fast_hline(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t
 }
 
 
-static void fast_vline(st7789_ST7789_obj_t *self, uint8_t x, uint8_t y, uint16_t w, uint16_t color) {
+static void fast_vline(st7789_ST7789_obj_t *self, uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
     set_window(self, x, y, x, y + w - 1);
     DC_HIGH(self);
     CS_LOW(self);
