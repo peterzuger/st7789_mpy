@@ -99,14 +99,15 @@ static void write_cmd(st7789_ST7789_obj_t *self, uint8_t cmd, const uint8_t *dat
 }
 
 static void set_window(st7789_ST7789_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    if (x0 > x1 || x1 >= self->width) {
+    if((x0 > x1) || (y0 > y1))
         return;
-    }
-    if (y0 > y1 || y1 >= self->height) {
-        return;
-    }
-    uint8_t bufx[4] = {(x0+self->xstart) >> 8, (x0+self->xstart) & 0xFF, (x1+self->xstart) >> 8, (x1+self->xstart) & 0xFF};
-    uint8_t bufy[4] = {(y0+self->ystart) >> 8, (y0+self->ystart) & 0xFF, (y1+self->ystart) >> 8, (y1+self->ystart) & 0xFF};
+
+    if(x1 >= self->width)  x1 = self->width - 1;
+    if(y1 >= self->height) y1 = self->height - 1;
+
+    uint8_t bufx[4] = {(x0 + self->xstart) >> 8, (x0 + self->xstart) & 0xFF, (x1 + self->xstart) >> 8, (x1 + self->xstart) & 0xFF};
+    uint8_t bufy[4] = {(y0 + self->ystart) >> 8, (y0 + self->ystart) & 0xFF, (y1 + self->ystart) >> 8, (y1 + self->ystart) & 0xFF};
+
     write_cmd(self, ST7789_CASET, bufx, 4);
     write_cmd(self, ST7789_RASET, bufy, 4);
     write_cmd(self, ST7789_RAMWR, NULL, 0);
