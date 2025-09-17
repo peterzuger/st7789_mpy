@@ -195,10 +195,10 @@ static mp_obj_t st7789_ST7789_write(mp_obj_t self_in, mp_obj_t command, mp_obj_t
 
     mp_buffer_info_t src;
     if (data == mp_const_none) {
-        write_cmd(self, (uint8_t)mp_obj_get_int(command), NULL, 0);
+        write_cmd(self, (uint8_t)mp_obj_int_get_uint_checked(command), NULL, 0);
     } else {
         mp_get_buffer_raise(data, &src, MP_BUFFER_READ);
-        write_cmd(self, (uint8_t)mp_obj_get_int(command), (const uint8_t*)src.buf, src.len);
+        write_cmd(self, (uint8_t)mp_obj_int_get_uint_checked(command), (const uint8_t*)src.buf, src.len);
     }
 
     return mp_const_none;
@@ -221,10 +221,10 @@ MP_DEFINE_CONST_FUN_OBJ_2(st7789_ST7789_sleep_mode_obj, st7789_ST7789_sleep_mode
 
 static mp_obj_t st7789_ST7789_set_window(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x0 = mp_obj_get_int(args[1]);
-    mp_int_t x1 = mp_obj_get_int(args[2]);
-    mp_int_t y0 = mp_obj_get_int(args[3]);
-    mp_int_t y1 = mp_obj_get_int(args[4]);
+    mp_uint_t x0 = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t x1 = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t y0 = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t y1 = mp_obj_int_get_uint_checked(args[4]);
 
     set_window(self, x0, y0, x1, y1);
     return mp_const_none;
@@ -247,11 +247,11 @@ MP_DEFINE_CONST_FUN_OBJ_2(st7789_ST7789_inversion_mode_obj, st7789_ST7789_invers
 
 static mp_obj_t st7789_ST7789_fill_rect(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x = mp_obj_get_int(args[1]);
-    mp_int_t y = mp_obj_get_int(args[2]);
-    mp_int_t w = mp_obj_get_int(args[3]);
-    mp_int_t h = mp_obj_get_int(args[4]);
-    mp_int_t color = mp_obj_get_int(args[5]);
+    mp_uint_t x = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t y = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t w = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t h = mp_obj_int_get_uint_checked(args[4]);
+    mp_uint_t color = mp_obj_int_get_uint_checked(args[5]);
 
     set_window(self, x, y, x + w - 1, y + h - 1);
     DC_HIGH(self);
@@ -266,7 +266,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(st7789_ST7789_fill_rect_obj, 6, 6, st
 
 static mp_obj_t st7789_ST7789_fill(mp_obj_t self_in, mp_obj_t _color) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    mp_int_t color = mp_obj_get_int(_color);
+    mp_uint_t color = mp_obj_int_get_uint_checked(_color);
 
     set_window(self, 0, 0, self->width - 1, self->height - 1);
     DC_HIGH(self);
@@ -281,9 +281,9 @@ static MP_DEFINE_CONST_FUN_OBJ_2(st7789_ST7789_fill_obj, st7789_ST7789_fill);
 
 static mp_obj_t st7789_ST7789_pixel(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x = mp_obj_get_int(args[1]);
-    mp_int_t y = mp_obj_get_int(args[2]);
-    mp_int_t color = mp_obj_get_int(args[3]);
+    mp_uint_t x = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t y = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t color = mp_obj_int_get_uint_checked(args[3]);
 
     draw_pixel(self, x, y, color);
 
@@ -294,11 +294,11 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(st7789_ST7789_pixel_obj, 4, 4, st7789
 
 static mp_obj_t st7789_ST7789_line(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x0 = mp_obj_get_int(args[1]);
-    mp_int_t y0 = mp_obj_get_int(args[2]);
-    mp_int_t x1 = mp_obj_get_int(args[3]);
-    mp_int_t y1 = mp_obj_get_int(args[4]);
-    mp_int_t color = mp_obj_get_int(args[5]);
+    mp_uint_t x0 = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t y0 = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t x1 = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t y1 = mp_obj_int_get_uint_checked(args[4]);
+    mp_uint_t color = mp_obj_int_get_uint_checked(args[5]);
 
     bool steep = ABS(y1 - y0) > ABS(x1 - x0);
     if (steep) {
@@ -353,10 +353,10 @@ static mp_obj_t st7789_ST7789_blit_buffer(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_buffer_info_t buf_info;
     mp_get_buffer_raise(args[1], &buf_info, MP_BUFFER_READ);
-    mp_int_t x = mp_obj_get_int(args[2]);
-    mp_int_t y = mp_obj_get_int(args[3]);
-    mp_int_t w = mp_obj_get_int(args[4]);
-    mp_int_t h = mp_obj_get_int(args[5]);
+    mp_uint_t x = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t y = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t w = mp_obj_int_get_uint_checked(args[4]);
+    mp_uint_t h = mp_obj_int_get_uint_checked(args[5]);
 
     set_window(self, x, y, x + w - 1, y + h - 1);
     DC_HIGH(self);
@@ -441,10 +441,10 @@ MP_DEFINE_CONST_FUN_OBJ_1(st7789_ST7789_off_obj, st7789_ST7789_off);
 
 static mp_obj_t st7789_ST7789_hline(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x = mp_obj_get_int(args[1]);
-    mp_int_t y = mp_obj_get_int(args[2]);
-    mp_int_t w = mp_obj_get_int(args[3]);
-    mp_int_t color = mp_obj_get_int(args[4]);
+    mp_uint_t x = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t y = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t w = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t color = mp_obj_int_get_uint_checked(args[4]);
 
     fast_hline(self, x, y, w, color);
 
@@ -455,10 +455,10 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(st7789_ST7789_hline_obj, 5, 5, st7789
 
 static mp_obj_t st7789_ST7789_vline(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x = mp_obj_get_int(args[1]);
-    mp_int_t y = mp_obj_get_int(args[2]);
-    mp_int_t w = mp_obj_get_int(args[3]);
-    mp_int_t color = mp_obj_get_int(args[4]);
+    mp_uint_t x = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t y = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t w = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t color = mp_obj_int_get_uint_checked(args[4]);
 
     fast_vline(self, x, y, w, color);
 
@@ -469,11 +469,11 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(st7789_ST7789_vline_obj, 5, 5, st7789
 
 static mp_obj_t st7789_ST7789_rect(size_t n_args, const mp_obj_t *args) {
     st7789_ST7789_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    mp_int_t x = mp_obj_get_int(args[1]);
-    mp_int_t y = mp_obj_get_int(args[2]);
-    mp_int_t w = mp_obj_get_int(args[3]);
-    mp_int_t h = mp_obj_get_int(args[4]);
-    mp_int_t color = mp_obj_get_int(args[5]);
+    mp_uint_t x = mp_obj_int_get_uint_checked(args[1]);
+    mp_uint_t y = mp_obj_int_get_uint_checked(args[2]);
+    mp_uint_t w = mp_obj_int_get_uint_checked(args[3]);
+    mp_uint_t h = mp_obj_int_get_uint_checked(args[4]);
+    mp_uint_t color = mp_obj_int_get_uint_checked(args[5]);
 
     fast_hline(self, x, y, w, color);
     fast_vline(self, x, y, h, color);
@@ -589,9 +589,9 @@ static uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
 
 static mp_obj_t st7789_color565(mp_obj_t r, mp_obj_t g, mp_obj_t b) {
     return MP_OBJ_NEW_SMALL_INT(color565(
-        (uint8_t)mp_obj_get_int(r),
-        (uint8_t)mp_obj_get_int(g),
-        (uint8_t)mp_obj_get_int(b)
+        (uint8_t)mp_obj_int_get_uint_checked(r),
+        (uint8_t)mp_obj_int_get_uint_checked(g),
+        (uint8_t)mp_obj_int_get_uint_checked(b)
     ));
 }
 static MP_DEFINE_CONST_FUN_OBJ_3(st7789_color565_obj, st7789_color565);
